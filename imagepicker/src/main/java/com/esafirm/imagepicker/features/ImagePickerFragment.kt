@@ -37,8 +37,8 @@ import com.esafirm.imagepicker.listeners.OnImageClickListener
 import com.esafirm.imagepicker.listeners.OnImageSelectedListener
 import com.esafirm.imagepicker.model.Folder
 import com.esafirm.imagepicker.model.Image
+import com.esafirm.imagepicker.model.ImageWrapper
 import com.esafirm.imagepicker.view.SnackBarView
-import java.io.File
 
 class ImagePickerFragment : Fragment(), ImagePickerView {
     val isShowDoneButton: Boolean
@@ -158,10 +158,10 @@ class ImagePickerFragment : Fragment(), ImagePickerView {
             val result = localInflater.inflate(R.layout.ef_fragment_image_picker, container, false)
             setupView(result)
             if (savedInstanceState == null) {
-                setupRecyclerView(config, config.getSelectedImages(), null)
+                setupRecyclerView(config, config.getSelectedImages())
             } else {
                 setupRecyclerView(
-                    config, null, savedInstanceState.getParcelableArrayList(
+                    config, savedInstanceState.getParcelableArrayList(
                         STATE_KEY_SELECTED_IMAGES
                     )
                 )
@@ -279,8 +279,7 @@ class ImagePickerFragment : Fragment(), ImagePickerView {
 
     private fun setupRecyclerView(
         config: ImagePickerConfig?,
-        selectedImageFiles: List<File>?,
-        selectedImages: List<Image>?
+        selectedImages: List<ImageWrapper>?
     ) {
         recyclerViewManager = RecyclerViewManager(
             recyclerView!!,
@@ -289,7 +288,7 @@ class ImagePickerFragment : Fragment(), ImagePickerView {
         )
 
         recyclerViewManager!!.setupAdapters(
-            selectedImageFiles ?: selectedImages?.map { it.file },
+            selectedImages,
             object : OnImageClickListener {
                 override fun onImageClick(isSelected: Boolean): Boolean {
                     return recyclerViewManager!!.selectImage(isSelected)

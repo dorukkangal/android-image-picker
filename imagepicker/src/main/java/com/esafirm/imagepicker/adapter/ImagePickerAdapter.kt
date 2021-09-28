@@ -18,25 +18,24 @@ import com.esafirm.imagepicker.helper.ImagePickerUtils
 import com.esafirm.imagepicker.listeners.OnImageClickListener
 import com.esafirm.imagepicker.listeners.OnImageSelectedListener
 import com.esafirm.imagepicker.model.Image
+import com.esafirm.imagepicker.model.ImageWrapper
 import kotlinx.android.synthetic.main.ef_imagepicker_item_image.view.*
-import java.io.File
 
 class ImagePickerAdapter(
     context: Context,
     imageLoader: ImageLoader,
-    selectedImages: List<File>?,
+    selectedImages: List<ImageWrapper>?,
     private val itemClickListener: OnImageClickListener
 ) : BaseListAdapter<ImageViewHolder>(context, imageLoader) {
 
-    private val images: MutableList<Image> = mutableListOf()
-    val selectedImages: MutableList<Image> = mutableListOf()
-    private val selectedImageFiles: MutableList<File> = mutableListOf()
+    private val images = mutableListOf<Image>()
+    private val selectedImages = mutableListOf<ImageWrapper>()
 
     private var imageSelectedListener: OnImageSelectedListener? = null
-    private val videoDurationHolder = HashMap<Long, String?>()
+    private val videoDurationHolder = hashMapOf<Long, String?>()
 
     init {
-        selectedImageFiles.addAll(selectedImages.orEmpty())
+        this.selectedImages.addAll(selectedImages.orEmpty())
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
@@ -85,7 +84,7 @@ class ImagePickerAdapter(
                 if (isSelected) {
                     removeSelectedImage(image, position)
                 } else if (shouldSelect) {
-                    addSelected(image, position)
+                    addSelectedImage(image, position)
                 }
             }
             container?.foreground = if (isSelected) ContextCompat.getDrawable(
@@ -95,36 +94,18 @@ class ImagePickerAdapter(
         }
     }
 
-    private fun isSelected(image: Image): Boolean {
-        return selectedImages.contains(image)
-    }
-
     override fun getItemCount() = images.size
 
-    fun setData(images: List<Image>?) {
+    fun setImageSelectedListener(imageSelectedListener: OnImageSelectedListener?) {
+        this.imageSelectedListener = imageSelectedListener
+    }
+
+    fun setItems(images: List<Image>?) {
         this.images.clear()
-        images?.let { this.images.addAll(it) }
-
-        images?.filter { image ->
-            selectedImageFiles.any {
-                it == image.file
-            }
-        }?.let { selectedImages.addAll(it) }
+        this.images.addAll(images.orEmpty())
     }
 
-    private fun addSelected(image: Image, position: Int) {
-        mutateSelection {
-            selectedImages.add(image)
-            notifyItemChanged(position)
-        }
-    }
-
-    private fun removeSelectedImage(image: Image, position: Int) {
-        mutateSelection {
-            selectedImages.remove(image)
-            notifyItemChanged(position)
-        }
-    }
+    fun getItem(position: Int) = images.getOrNull(position)
 
     fun removeAllSelectedSingleClick() {
         mutateSelection {
@@ -133,16 +114,39 @@ class ImagePickerAdapter(
         }
     }
 
+    fun getSelectedImages(): List<Image> {
+        return images.filter { isSelected(it) }
+    }
+
+    private fun addSelectedImage(image: Image, position: Int) {
+        mutateSelection {
+            selectedImages.add(ImageWrapper(image = image))
+            notifyItemChanged(position)
+        }
+    }
+
+    private fun removeSelectedImage(image: Image, position: Int) {
+        mutateSelection {
+            selectedImages.remove(ImageWrapper(image = image))
+            notifyItemChanged(position)
+        }
+    }
+
+    private fun isSelected(image: Image): Boolean {
+        return selectedImages.any {
+            when {
+                it.image != null -> it.image == image
+                it.imageFile != null -> it.imageFile == image.file
+                it.imageUri != null -> it.imageUri == image.uri
+                else -> false
+            }
+        }
+    }
+
     private fun mutateSelection(runnable: Runnable) {
         runnable.run()
-        imageSelectedListener?.onSelectionUpdate(selectedImages)
+        imageSelectedListener?.onSelectionUpdate(selectedImages.map { it.image })
     }
-
-    fun setImageSelectedListener(imageSelectedListener: OnImageSelectedListener?) {
-        this.imageSelectedListener = imageSelectedListener
-    }
-
-    fun getItem(position: Int) = images.getOrNull(position)
 
     class ImageViewHolder(itemView: View) : ViewHolder(itemView) {
         val imageView: ImageView = itemView.image_view

@@ -3,6 +3,7 @@ package com.esafirm.imagepicker.features
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.annotation.ColorInt
 import androidx.annotation.StyleRes
 import androidx.fragment.app.Fragment
@@ -110,7 +111,7 @@ abstract class ImagePicker {
         return this
     }
 
-    fun select(images: List<Image>?): ImagePicker {
+    fun selectImages(images: List<Image>?): ImagePicker {
         config!!.setSelectedImages(images)
         return this
     }
@@ -125,7 +126,12 @@ abstract class ImagePicker {
         return this
     }
 
-    fun exclude(images: List<Image>?): ImagePicker {
+    fun selectURIs(images: List<Uri>?): ImagePicker {
+        config!!.setSelectedImageURIs(images)
+        return this
+    }
+
+    fun excludeImages(images: List<Image>?): ImagePicker {
         config!!.setExcludedImages(images)
         return this
     }
@@ -137,6 +143,11 @@ abstract class ImagePicker {
 
     fun excludePaths(images: List<String>?): ImagePicker {
         config!!.setExcludedImagePaths(images)
+        return this
+    }
+
+    fun excludeURIs(images: List<Uri>?): ImagePicker {
+        config!!.setExcludedImageURIs(images)
         return this
     }
 

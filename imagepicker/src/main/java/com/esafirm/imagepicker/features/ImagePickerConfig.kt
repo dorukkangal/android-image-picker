@@ -1,8 +1,10 @@
 package com.esafirm.imagepicker.features
 
+import android.net.Uri
 import android.os.Parcelable
 import com.esafirm.imagepicker.features.common.BaseConfig
 import com.esafirm.imagepicker.model.Image
+import com.esafirm.imagepicker.model.ImageWrapper
 import kotlinx.android.parcel.Parcelize
 import java.io.File
 
@@ -21,17 +23,23 @@ data class ImagePickerConfig(
     var includeAnimation: Boolean = false,
     var showCamera: Boolean = false,
     @Transient var language: String? = null,
-    private var selectedImages: ArrayList<File> = arrayListOf(),
-    private var excludedImages: ArrayList<File> = arrayListOf(),
+    private var selectedImages: ArrayList<ImageWrapper> = arrayListOf(),
+    private var excludedImages: ArrayList<ImageWrapper> = arrayListOf(),
 ) : BaseConfig(), Parcelable {
 
-    fun getSelectedImages(): List<File> {
+    fun getSelectedImages(): List<ImageWrapper> {
         return selectedImages
     }
 
     fun setSelectedImages(selectedImages: List<Image>?) {
         this.selectedImages.addAll(
-            selectedImages.orEmpty().map { it.file }
+            selectedImages.orEmpty().map { ImageWrapper(image = it) }
+        )
+    }
+
+    fun setSelectedImageFiles(selectedImages: List<File>?) {
+        this.selectedImages.addAll(
+            selectedImages.orEmpty().map { ImageWrapper(imageFile = it) }
         )
     }
 
@@ -39,19 +47,25 @@ data class ImagePickerConfig(
         setSelectedImageFiles(selectedImages?.map { File(it) })
     }
 
-    fun setSelectedImageFiles(selectedImages: List<File>?) {
+    fun setSelectedImageURIs(selectedImages: List<Uri>?) {
         this.selectedImages.addAll(
-            selectedImages.orEmpty()
+            selectedImages.orEmpty().map { ImageWrapper(imageUri = it) }
         )
     }
 
-    fun getExcludedImages(): List<File> {
+    fun getExcludedImages(): List<ImageWrapper> {
         return excludedImages
     }
 
     fun setExcludedImages(excludedImages: List<Image>?) {
         this.excludedImages.addAll(
-            excludedImages.orEmpty().map { it.file }
+            excludedImages.orEmpty().map { ImageWrapper(image = it) }
+        )
+    }
+
+    fun setExcludedImageFiles(excludedImages: List<File>?) {
+        this.excludedImages.addAll(
+            excludedImages.orEmpty().map { ImageWrapper(imageFile = it) }
         )
     }
 
@@ -59,9 +73,9 @@ data class ImagePickerConfig(
         setSelectedImageFiles(excludedImages?.map { File(it) })
     }
 
-    fun setExcludedImageFiles(excludedImages: List<File>?) {
+    fun setExcludedImageURIs(excludedImages: List<Uri>?) {
         this.excludedImages.addAll(
-            excludedImages.orEmpty()
+            excludedImages.orEmpty().map { ImageWrapper(imageUri = it) }
         )
     }
 

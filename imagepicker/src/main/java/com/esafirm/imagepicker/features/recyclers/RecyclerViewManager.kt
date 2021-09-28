@@ -20,8 +20,8 @@ import com.esafirm.imagepicker.listeners.OnImageClickListener
 import com.esafirm.imagepicker.listeners.OnImageSelectedListener
 import com.esafirm.imagepicker.model.Folder
 import com.esafirm.imagepicker.model.Image
+import com.esafirm.imagepicker.model.ImageWrapper
 import com.esafirm.imagepicker.view.GridSpacingItemDecoration
-import java.io.File
 
 class RecyclerViewManager(
     private val recyclerView: RecyclerView,
@@ -43,12 +43,12 @@ class RecyclerViewManager(
     val selectedImages: List<Image>
         get() {
             checkAdapterIsInitialized()
-            return imageAdapter!!.selectedImages
+            return imageAdapter!!.getSelectedImages()
         }
 
     val isShowDoneButton: Boolean
         get() = isDisplayingFolderView.not()
-                && imageAdapter!!.selectedImages.isNotEmpty()
+                && imageAdapter!!.getSelectedImages().isNotEmpty()
                 && (config.returnMode !== ReturnMode.ALL && config.returnMode !== ReturnMode.GALLERY_ONLY)
 
 
@@ -65,7 +65,7 @@ class RecyclerViewManager(
                 return getImageTitle(context, config)
             }
 
-            val imageSize = imageAdapter!!.selectedImages.size
+            val imageSize = imageAdapter!!.getSelectedImages().size
             val useDefaultTitle = config.imageTitle.isNullOrEmpty().not() && imageSize == 0
 
             if (useDefaultTitle) {
@@ -109,7 +109,7 @@ class RecyclerViewManager(
     }
 
     fun setupAdapters(
-        selectedImages: List<File>?,
+        selectedImages: List<ImageWrapper>?,
         onImageClickListener: OnImageClickListener?,
         onFolderClickListener: OnFolderClickListener
     ) {
@@ -156,7 +156,7 @@ class RecyclerViewManager(
     }
 
     fun setImageAdapter(images: List<Image>?) {
-        imageAdapter!!.setData(images)
+        imageAdapter!!.setItems(images)
         setItemDecoration(imageColumns)
         recyclerView.adapter = imageAdapter
     }
@@ -187,12 +187,12 @@ class RecyclerViewManager(
 
     fun selectImage(isSelected: Boolean): Boolean {
         if (config.mode == IpConstants.MODE_MULTIPLE) {
-            if (imageAdapter!!.selectedImages.size >= config.limit && !isSelected) {
+            if (imageAdapter!!.getSelectedImages().size >= config.limit && !isSelected) {
                 Toast.makeText(context, R.string.ef_msg_limit_images, Toast.LENGTH_SHORT).show()
                 return false
             }
         } else if (config.mode == IpConstants.MODE_SINGLE) {
-            if (imageAdapter!!.selectedImages.isNotEmpty()) {
+            if (imageAdapter!!.getSelectedImages().isNotEmpty()) {
                 imageAdapter!!.removeAllSelectedSingleClick()
             }
         }

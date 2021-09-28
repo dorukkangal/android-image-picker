@@ -7,6 +7,7 @@ import com.esafirm.imagepicker.features.common.ImageLoaderListener
 import com.esafirm.imagepicker.helper.ImagePickerUtils
 import com.esafirm.imagepicker.model.Folder
 import com.esafirm.imagepicker.model.Image
+import com.esafirm.imagepicker.model.ImageWrapper
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -29,7 +30,7 @@ class DefaultImageFileLoader(context: Context) : ImageFileLoader {
         onlyVideo: Boolean,
         includeVideo: Boolean,
         includeAnimation: Boolean,
-        excludedImages: List<File>?,
+        excludedImages: List<ImageWrapper>?,
         listener: ImageLoaderListener
     ) {
         getExecutorService()!!.execute(
@@ -61,7 +62,7 @@ class DefaultImageFileLoader(context: Context) : ImageFileLoader {
         private val onlyVideo: Boolean,
         private val includeVideo: Boolean,
         private val includeAnimation: Boolean,
-        private val excludedImages: List<File>?,
+        private val excludedImages: List<ImageWrapper>?,
         private val listener: ImageLoaderListener
     ) : Runnable {
         private val querySelection: String?
@@ -113,7 +114,9 @@ class DefaultImageFileLoader(context: Context) : ImageFileLoader {
                 do {
                     val path = cursor.getString(cursor.getColumnIndex(projection[2]))
                     val file = makeSafeFile(path) ?: continue
-                    if (excludedImages != null && excludedImages.contains(file)) continue
+                    if (excludedImages != null && excludedImages.any { it.image?.path == path || it.imageFile == file }) {
+                        continue
+                    }
 
                     // Exclude GIF when we don't want it
                     if (!includeAnimation && ImagePickerUtils.isGifFormat(path)) {
