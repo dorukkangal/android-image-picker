@@ -101,17 +101,15 @@ class ImagePickerAdapter(
 
     override fun getItemCount() = images.size
 
-    fun setData(images: List<Image>) {
+    fun setData(images: List<Image>?) {
         this.images.clear()
-        this.images.addAll(images)
+        images?.let { this.images.addAll(it) }
 
-        selectedImages.addAll(
-            images.filter { image ->
-                selectedImageFiles.any {
-                    it == image.file
-                }
+        images?.filter { image ->
+            selectedImageFiles.any {
+                it == image.file
             }
-        )
+        }?.let { selectedImages.addAll(it) }
     }
 
     private fun addSelected(image: Image, position: Int) {

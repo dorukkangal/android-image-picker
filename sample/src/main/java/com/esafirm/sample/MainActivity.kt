@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
             val isExclude = ef_switch_include_exclude.isChecked
 
             val imagePicker = ImagePicker.create(this)
-                .language("in") // Set image picker language
+                .language("en") // Set image picker language
                 .theme(R.style.ImagePickerTheme)
                 .returnMode(if (returnAfterCapture) ReturnMode.ALL else ReturnMode.NONE) // set whether pick action or camera action should return immediate result or not. Only works in single mode for image picker
                 .folderMode(folderMode) // set folder mode (false by default)
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                 .toolbarImageTitle("Tap to select") // image selection title
                 .toolbarDoneButtonText("DONE") // done button text
 
-            ImagePickerComponentHolder.getInstance().imageLoader = if (useCustomImageLoader) {
+            ImagePickerComponentHolder.imageLoader = if (useCustomImageLoader) {
                 GrayscaleImageLoader()
             } else {
                 DefaultImageLoader()
@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         }
 
     private fun startWithIntent() {
-        startActivityForResult(imagePicker.getIntent(this), IpCons.RC_IMAGE_PICKER)
+        startActivityForResult(imagePicker.getIntent(this), IpConstants.RC_IMAGE_PICKER)
     }
 
     private fun start() {
@@ -109,17 +109,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startCustomUI() {
-        val config = imagePicker.config
+        val config = imagePicker.getConfig()
         val intent = Intent(this, CustomUIActivity::class.java)
         intent.putExtra(ImagePickerConfig::class.java.simpleName, config)
-        startActivityForResult(intent, IpCons.RC_IMAGE_PICKER)
+        startActivityForResult(intent, IpConstants.RC_IMAGE_PICKER)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             val selectedImages = ImagePicker.getImages(data)
             images.clear()
-            images.addAll(selectedImages.mapNotNull { it.file })
+            images.addAll(selectedImages.orEmpty().map { it.file })
             printImages(selectedImages)
             return
         }

@@ -7,6 +7,7 @@ import java.io.File
 import java.util.*
 
 object UriUtils {
+
     fun uriForFile(context: Context, file: File): Uri {
         val appContext = context.applicationContext
         val providerName =

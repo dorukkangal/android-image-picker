@@ -5,7 +5,7 @@ import android.net.Uri
 import com.esafirm.imagepicker.helper.ImagePickerUtils
 
 object ImageFactory {
-    @JvmStatic
+
     fun singleImage(uri: Uri, path: String): Image {
         return Image(
             id = ContentUris.parseId(uri),

@@ -55,11 +55,11 @@ class CustomUIActivity : AppCompatActivity() {
 
         if (savedInstanceState != null) {
             // The fragment has been restored.
-            IpLogger.getInstance().e("Fragment has been restored")
+            IpLogger.e("Fragment has been restored")
             imagePickerFragment = supportFragmentManager
                 .findFragmentById(R.id.ef_imagepicker_fragment_placeholder) as ImagePickerFragment
         } else {
-            IpLogger.getInstance().e("Making fragment")
+            IpLogger.e("Making fragment")
             imagePickerFragment = ImagePickerFragment.newInstance(config, cameraOnlyConfig)
             supportFragmentManager.beginTransaction()
                 .replace(R.id.ef_imagepicker_fragment_placeholder, imagePickerFragment)
@@ -84,12 +84,12 @@ class CustomUIActivity : AppCompatActivity() {
         val menuCamera = menu.findItem(com.esafirm.imagepicker.R.id.menu_camera)
         if (menuCamera != null) {
             if (config != null) {
-                menuCamera.isVisible = config!!.isShowCamera
+                menuCamera.isVisible = config!!.showCamera
             }
         }
         val menuDone = menu.findItem(com.esafirm.imagepicker.R.id.menu_done)
         if (menuDone != null) {
-            menuDone.title = ConfigUtils.getDoneButtonText(this, config)
+            menuDone.title = ConfigUtils.getDoneButtonText(this, config!!)
             menuDone.isVisible = imagePickerFragment.isShowDoneButton
         }
         return super.onPrepareOptionsMenu(menu)
@@ -151,10 +151,6 @@ class CustomUIActivity : AppCompatActivity() {
             invalidateOptionsMenu()
         }
 
-        override fun cancel() {
-            finish()
-        }
-
         override fun selectionChanged(imageList: List<Image>) {
             if (imageList.isEmpty()) {
                 photo_preview.setImageDrawable(null)
@@ -169,8 +165,12 @@ class CustomUIActivity : AppCompatActivity() {
             }
         }
 
-        override fun finishPickImages(result: Intent) {
+        override fun finishPickImages(result: Intent?) {
             setResult(RESULT_OK, result)
+            finish()
+        }
+
+        override fun cancel() {
             finish()
         }
     }

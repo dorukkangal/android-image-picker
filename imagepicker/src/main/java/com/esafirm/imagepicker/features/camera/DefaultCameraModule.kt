@@ -32,9 +32,9 @@ class DefaultCameraModule : CameraModule, Serializable {
         prepareForNewIntent()
 
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        val imageFile = ImagePickerUtils.createImageFile(config.imageDirectory, context)
+        val imageFile = ImagePickerUtils.createImageFile(context, config.getImageDirectory()!!)
 
-        if (config.isSaveImage && imageFile != null) {
+        if (config.saveImage && imageFile != null) {
             val appContext = context.applicationContext
             val uri = createCameraUri(appContext, imageFile)
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
@@ -73,7 +73,7 @@ class DefaultCameraModule : CameraModule, Serializable {
         checkNotNull(imageReadyListener) { "OnImageReadyListener must not be null" }
 
         if (currentImagePath == null) {
-            IpLogger.getInstance().w(
+            IpLogger.w(
                 "currentImagePath null. " +
                         "This happen if you haven't call #getCameraIntent() or the activity is being recreated"
             )
@@ -88,14 +88,13 @@ class DefaultCameraModule : CameraModule, Serializable {
                 arrayOf(imageUri.path),
                 null
             ) { path: String?, uri: Uri? ->
-                IpLogger.getInstance().d("File $path was scanned successfully: $uri")
+                IpLogger.d("File $path was scanned successfully: $uri")
 
                 if (path == null) {
-                    IpLogger.getInstance()
-                        .d("This should not happen, go back to Immediate implementation")
+                    IpLogger.d("This should not happen, go back to Immediate implementation")
                 }
                 if (uri == null) {
-                    IpLogger.getInstance().d("scanFile is failed. Uri is null")
+                    IpLogger.d("scanFile is failed. Uri is null")
                 }
 
                 val finalPath = path ?: currentImagePath!!

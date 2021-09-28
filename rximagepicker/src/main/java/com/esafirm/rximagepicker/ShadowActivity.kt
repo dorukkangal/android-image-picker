@@ -17,7 +17,7 @@ class ShadowActivity : Activity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val images = ImagePicker.getImages(data)
+        val images = ImagePicker.getImages(data).orEmpty()
         RxImagePicker.instance.onHandleResult(images)
         finish()
     }
